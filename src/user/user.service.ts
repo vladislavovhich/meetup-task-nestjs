@@ -1,26 +1,60 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
+import * as bcrypt from "bcrypt"
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createUserDto: Prisma.UserCreateInput) {
+    const isExist = await this.findByEmail(createUserDto.email)
+
+    if (isExist) {
+      throw new BadRequestException("Email is already taken!")
+    }
+
+    const password = await bcrypt.hash(createUserDto.password, 10)
+    const user = await this.prisma.user.create({
+      data: {...createUserDto, password}
+    })
+
+    return user
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async findAll() {
+    return await this.prisma.user.findMany()
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number) {
+    return await this.prisma.user.findFirst({
+      where: {id}
+    })
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async findByEmail(email: string) {
+    return await this.prisma.user.findFirst({
+      where: {
+        email: email
+      }
+    })
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async update(id: number, updateUserDto: Prisma.UserUpdateInput) {
+    if (updateUserDto.password) {
+      const password = await bcrypt.hash(updateUserDto.password as string, 10)
+
+      updateUserDto.password = password
+    }
+
+    const user = await this.prisma.user.update({
+      data: updateUserDto, where: {id}
+    })
+
+    return user
+  }
+
+  async remove(id: number) {
+    return await this.prisma.user.delete({where: {id}})
   }
 }
