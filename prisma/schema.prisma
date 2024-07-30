@@ -45,8 +45,6 @@ model MeetupTag {
   tag        Tag @relation(fields: [tagId], references: [id])
   tagId      Int
   meetupId    Int
-  assignedAt DateTime @default(now())
-  assignedBy String
 
   @@id([tagId, meetupId])
 }
@@ -56,8 +54,6 @@ model MeetupSubcriber {
   user        User @relation(fields: [userId], references: [id])
   userId      Int
   meetupId    Int
-  assignedAt DateTime @default(now())
-  assignedBy String
 
   @@id([userId, meetupId])
 }

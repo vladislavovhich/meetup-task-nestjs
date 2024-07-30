@@ -2,12 +2,13 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import * as bcrypt from "bcrypt"
+import { RegisterUserDto } from 'src/auth/dto/register-user.dto';
 
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createUserDto: Prisma.UserCreateInput) {
+  async create(createUserDto: RegisterUserDto) {
     return await this.prisma.user.create({data: createUserDto})
   }
 

@@ -5,6 +5,7 @@ import { Prisma } from '@prisma/client';
 import * as bcrypt from "bcrypt"
 import { LoginUserDto } from './dto/login-user.dto';
 import { create } from 'domain';
+import { RegisterUserDto } from './dto/register-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -13,7 +14,7 @@ export class AuthService {
         private readonly userService: UserService
     ) {}
 
-    async signUp(createUserDto: Prisma.UserCreateInput) {
+    async signUp(createUserDto: RegisterUserDto) {
        const isExist = await this.userService.findByEmail(createUserDto.email)
 
        if (isExist) {

@@ -8,7 +8,7 @@ import { UserModule } from 'src/user/user.module';
 @Module({
   controllers: [TagController],
   providers: [TagService],
-  imports: [PrismaModule, AuthModule, UserModule],
+  imports: [PrismaModule, UserModule],
   exports: [TagService]
 })
 export class TagModule {}

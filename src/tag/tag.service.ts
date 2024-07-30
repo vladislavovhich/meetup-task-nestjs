@@ -22,6 +22,10 @@ export class TagService {
         return await this.prisma.tag.findMany()
     }
 
+    async findByName(name: string) {
+        return await this.prisma.tag.findFirst({where: {name}})
+    }
+
     async findOne(id: number) {
         return await this.prisma.tag.findFirst({where: {id}})
     }

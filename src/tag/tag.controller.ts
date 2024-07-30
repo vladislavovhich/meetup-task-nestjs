@@ -10,8 +10,10 @@ import { UpdateTagDto } from 'src/tag/dto/update-tag.dto';
 import { Request } from 'express';
 import { Roles } from 'src/common/decorators/check-role.decorator';
 import { RolesGuard } from 'src/common/guards/check-role.guard';
-import { UserRole } from 'src/common/enums/user-roles.enum';
+import { UserRole } from 'src/common/enums/enums';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Tag')
 @Controller('tags')
 export class TagController {
     constructor(private readonly tagService: TagService) {}

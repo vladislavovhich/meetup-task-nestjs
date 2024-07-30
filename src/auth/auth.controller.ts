@@ -11,8 +11,10 @@ import { UserService } from 'src/user/user.service';
 import { GetUser } from 'src/common/decorators/extract-user.decorator';
 import { UserType } from './auth.types';
 import { RefreshTokenGuard } from './guards/refreshToken.guard';
-import { request } from 'http';
+import { ApiTags } from '@nestjs/swagger';
+import { RegisterUserDto } from './dto/register-user.dto';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
     constructor (
@@ -31,7 +33,7 @@ export class AuthController {
     }
 
     @Post('signup') 
-    async signUp(@Body() createUserDto: Prisma.UserCreateInput, @Res({ passthrough: true }) response: Response) {
+    async signUp(@Body() createUserDto: RegisterUserDto, @Res({ passthrough: true }) response: Response) {
         const result = await this.authService.signUp(createUserDto)
 
         response.cookie("jwt", result.tokens.accessToken, {httpOnly: true, secure: true})

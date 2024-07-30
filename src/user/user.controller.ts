@@ -1,13 +1,16 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Prisma } from '@prisma/client';
+import { ApiTags } from '@nestjs/swagger';
+import { RegisterUserDto } from 'src/auth/dto/register-user.dto';
 
+@ApiTags('User')
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  create(@Body() createUserDto: Prisma.UserCreateInput) {
+  create(@Body() createUserDto: RegisterUserDto) {
     return this.userService.create(createUserDto);
   }
 
