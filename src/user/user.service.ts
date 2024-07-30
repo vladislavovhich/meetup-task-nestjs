@@ -8,18 +8,7 @@ export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createUserDto: Prisma.UserCreateInput) {
-    const isExist = await this.findByEmail(createUserDto.email)
-
-    if (isExist) {
-      throw new BadRequestException("Email is already taken!")
-    }
-
-    const password = await bcrypt.hash(createUserDto.password, 10)
-    const user = await this.prisma.user.create({
-      data: {...createUserDto, password}
-    })
-
-    return user
+    return await this.prisma.user.create({data: createUserDto})
   }
 
   async findAll() {
