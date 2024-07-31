@@ -11,12 +11,24 @@ import { CheckOwnership } from 'src/common/decorators/check-ownership.decorator'
 import { OwnershipGuard } from 'src/common/guards/check-ownership.guard';
 import { GetUser } from 'src/common/decorators/extract-user.decorator';
 import { UserType } from 'src/auth/auth.types';
-import { GetAllMeetupsDto, PaginationDto } from './meetup.types';
+import { GetAllMeetupsDto } from './dto/get-all-meetups.dto';
 
 @ApiTags('Meetup')
 @Controller('meetups')
 export class MeetupController {
     constructor(private readonly meetupService: MeetupService) {}
+
+    @Post('subscribe/:id')
+    @UseGuards(AccessTokenGuard)
+    subscribe(@Param('id') id: string, @GetUser() user: UserType) {
+        return this.meetupService.subcribe(user.userId, +id)
+    }
+
+    @Delete('unsubscribe/:id')
+    @UseGuards(AccessTokenGuard)
+    unsubscribe(@Param('id') id: string, @GetUser() user: UserType) {
+        return this.meetupService.unsubcribe(user.userId, +id)
+    }
 
     @Post()
     @Roles(UserRole.ADMIN, UserRole.MENTOR)   
@@ -27,8 +39,8 @@ export class MeetupController {
     }
 
     @Get()
-    findAll(@Query() query: GetAllMeetupsDto) {
-        return this.meetupService.findAll();
+    findAll(@Query() getAllMeetupsDto: GetAllMeetupsDto) {
+        return this.meetupService.findAll(getAllMeetupsDto);
     }
 
     @Get(':id')
@@ -42,8 +54,8 @@ export class MeetupController {
     @CheckOwnership('meetup')
     @UseGuards(OwnershipGuard)
     @UseGuards(AccessTokenGuard)
-    update(@Param('id') id: string, @Body() updateMeetupDto: UpdateMeetupDto) {
-        return this.meetupService.update(+id, updateMeetupDto);
+    update(@Param('id') id: string, @Body() updateMeetupDto: UpdateMeetupDto, @GetUser() user: UserType) {
+        return this.meetupService.update(+id, updateMeetupDto, user.userId);
     }
 
     @Delete(':id')
