@@ -6,6 +6,7 @@ import { TagService } from 'src/tag/tag.service';
 import { GetAllMeetupsDto } from './dto/get-all-meetups.dto';
 import { GetAllMeetupsType } from './meetup.types';
 import { transformOrderSortProps } from 'src/common/helpers/transform-order-sort-props.helper';
+import { MeetupResponseDto } from './dto/meetup-response.dto';
 
 @Injectable()
 export class MeetupService {
@@ -72,7 +73,7 @@ export class MeetupService {
           orderBy: orderByProps
         })
 
-        const result: GetAllMeetupsType = {meetups: meetups}
+        const result: GetAllMeetupsType = {meetups: meetups, currentPage: page}
 
         if (hasNextPage) {
           result.nextPage = page + 1
@@ -82,7 +83,7 @@ export class MeetupService {
           result.prevPage = page - 1
         }
 
-        return result
+        return new MeetupResponseDto(result)
     }
 
     async findOne(id: number) {

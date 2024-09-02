@@ -4,7 +4,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsEnum  } from "class-validator";
 import { Prisma, User } from "@prisma/client";
 
-export class UserResponseDto extends LoginUserDto {
+export class UserResponseDto {
     @ApiProperty()
     id: number
 
@@ -16,8 +16,6 @@ export class UserResponseDto extends LoginUserDto {
     role?: string
 
     constructor(user: User) {
-        super()
-
         this.id = user.id
         this.email = user.email
         this.role = user.role

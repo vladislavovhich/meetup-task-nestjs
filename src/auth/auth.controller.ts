@@ -11,7 +11,7 @@ import { UserService } from 'src/user/user.service';
 import { GetUser } from 'src/common/decorators/extract-user.decorator';
 import { UserType } from './auth.types';
 import { RefreshTokenGuard } from './guards/refreshToken.guard';
-import { ApiBadRequestResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 
@@ -24,7 +24,7 @@ export class AuthController {
     ) {}
 
     @Post('signin')
-    @ApiOkResponse({type: UserResponseDto})
+    @ApiCreatedResponse({type: UserResponseDto})
     @ApiBadRequestResponse({description: "Incorrect login or password | incorrect input data"})
     async signIn(@Body() loginUserDto: LoginUserDto, @Res({ passthrough: true }) response: Response) { 
         const result = await this.authService.signIn(loginUserDto)
@@ -36,7 +36,7 @@ export class AuthController {
     }
 
     @Post('signup') 
-    @ApiOkResponse({type: UserResponseDto})
+    @ApiCreatedResponse({type: UserResponseDto})
     @ApiBadRequestResponse({description: "Incorrect input data | incorrect input data"})
     async signUp(@Body() createUserDto: RegisterUserDto, @Res({ passthrough: true }) response: Response) {
         const result = await this.authService.signUp(createUserDto)
@@ -44,7 +44,7 @@ export class AuthController {
         response.cookie("jwt", result.tokens.accessToken, {httpOnly: true, secure: true})
         response.cookie("jwt-refresh", result.tokens.refreshToken, {httpOnly: true, secure: true})
 
-        return result.user
+        return new UserResponseDto(result.user)
     }
 
     @Get('logout') 
@@ -78,6 +78,6 @@ export class AuthController {
     async getMyProfile(@Req() req: Request, @GetUser() u: UserType) {
         const user = await this.userService.findOne(u.userId)
 
-        return user
+        return new UserResponseDto(user)
     }
 }
