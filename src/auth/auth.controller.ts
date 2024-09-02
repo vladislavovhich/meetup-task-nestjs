@@ -11,8 +11,9 @@ import { UserService } from 'src/user/user.service';
 import { GetUser } from 'src/common/decorators/extract-user.decorator';
 import { UserType } from './auth.types';
 import { RefreshTokenGuard } from './guards/refreshToken.guard';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { RegisterUserDto } from './dto/register-user.dto';
+import { UserResponseDto } from './dto/user-response.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -23,16 +24,20 @@ export class AuthController {
     ) {}
 
     @Post('signin')
+    @ApiOkResponse({type: UserResponseDto})
+    @ApiBadRequestResponse({description: "Incorrect login or password | incorrect input data"})
     async signIn(@Body() loginUserDto: LoginUserDto, @Res({ passthrough: true }) response: Response) { 
         const result = await this.authService.signIn(loginUserDto)
 
         response.cookie("jwt", result.tokens.accessToken, {httpOnly: true, secure: true})
         response.cookie("jwt-refresh", result.tokens.refreshToken, {httpOnly: true, secure: true})
 
-        return result
+        return new UserResponseDto(result.user)
     }
 
     @Post('signup') 
+    @ApiOkResponse({type: UserResponseDto})
+    @ApiBadRequestResponse({description: "Incorrect input data | incorrect input data"})
     async signUp(@Body() createUserDto: RegisterUserDto, @Res({ passthrough: true }) response: Response) {
         const result = await this.authService.signUp(createUserDto)
 
@@ -43,6 +48,8 @@ export class AuthController {
     }
 
     @Get('logout') 
+    @ApiOkResponse({description: "User successfully logged out"})
+    @ApiUnauthorizedResponse({description: "User not authorized"})
     @UseGuards(AccessTokenGuard)
     logout(@Res({ passthrough: true }) response: Response) {
         response.clearCookie('jwt')
@@ -52,6 +59,8 @@ export class AuthController {
     }
 
     @Get('refresh-token')
+    @ApiOkResponse({description: "Token is updated"})
+    @ApiUnauthorizedResponse({description: "User not authorized"})
     @UseGuards(RefreshTokenGuard)
     async refreshToken(@Req() req: Request, @GetUser() u: UserType, @Res({ passthrough: true }) response: Response) {
         const tokens = await this.authService.refreshToken(u.userId, req.cookies['jwt-refresh'])
@@ -63,6 +72,8 @@ export class AuthController {
     }
 
     @Get('me')
+    @ApiOkResponse({type: UserResponseDto})
+    @ApiUnauthorizedResponse({description: "User not authorized"})
     @UseGuards(AccessTokenGuard)
     async getMyProfile(@Req() req: Request, @GetUser() u: UserType) {
         const user = await this.userService.findOne(u.userId)
